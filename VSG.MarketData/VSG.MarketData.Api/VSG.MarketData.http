@@ -1,0 +1,6 @@
+@VSG.MarketData_HostAddress = http://localhost:5024
+
+GET {{VSG.MarketData_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

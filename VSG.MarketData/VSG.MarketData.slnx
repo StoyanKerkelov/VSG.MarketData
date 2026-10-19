@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="VSG.MarketData.Api/VSG.MarketData.Api.csproj" />
+  <Project Path="VSG.MarketData.Console/VSG.MarketData.Console.csproj" Id="3ddda333-ccc9-4dff-aa00-bd7cd9e421bb" />
+  <Project Path="VSG.MarketData.Core/VSG.MarketData.Core.csproj" Id="8fe00ab1-9cba-4743-b6d6-10d72b11c217" />
+  <Project Path="VSG.MarketData.Infrastructure/VSG.MarketData.Infrastructure.csproj" Id="a62e559f-b04f-46b3-bb9b-f6756201c6c1" />
+  <Project Path="VSG.MarketData.Tests/VSG.MarketData.Tests.csproj" Id="2d2498d9-87c6-4eb6-9e58-9f165b4363e5" />
+</Solution>

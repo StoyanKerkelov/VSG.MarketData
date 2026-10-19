@@ -1,0 +1,17 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/VSG.MarketData/.vs/ProjectEvaluation
+/VSG.MarketData/.vs/VSG.MarketData.slnx/DesignTimeBuild
+/VSG.MarketData/.vs/VSG.MarketData.slnx
+/VSG.MarketData/VSG.MarketData.Api/bin/Debug/net10.0
+/VSG.MarketData/VSG.MarketData.Api/obj
+/VSG.MarketData/VSG.MarketData.Console/bin/Debug/net10.0
+/VSG.MarketData/VSG.MarketData.Console/obj
+/VSG.MarketData/VSG.MarketData.Core/bin/Debug/net10.0
+/VSG.MarketData/VSG.MarketData.Core/obj
+/VSG.MarketData/VSG.MarketData.Infrastructure/bin/Debug/net10.0
+/VSG.MarketData/VSG.MarketData.Infrastructure/obj
+/VSG.MarketData/VSG.MarketData.Tests/bin/Debug/net10.0
+/VSG.MarketData/VSG.MarketData.Tests/obj
