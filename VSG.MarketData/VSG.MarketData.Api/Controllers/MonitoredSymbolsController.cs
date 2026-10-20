@@ -1,5 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using VSG.MarketData.Core.Models;
 using VSG.MarketData.Infrastructure.Persistence;

@@ -87,19 +87,16 @@ public class PriceAnalysisController(MarketDataDbContext dbContext)
             return NotFound($"No price data available for {symbol} in the requested period.");
 
         var points = PriceIntervalCalculator.Calculate(prices.Select(x => new VSG.MarketData.Core.Models.PriceUpdate
-                                                        {
-                                                            Symbol = symbol,
-                                                            Price = x.Price,
-                                                            Timestamp = x.Timestamp
-                                                        }),
+        {
+            Symbol = symbol,
+            Price = x.Price,
+            Timestamp = x.Timestamp
+        }),
                                                         period.Value,
                                                         n);
 
         if (points.Count == 0)
             return NotFound("No data points available.");
-
-        if (points.Count < n)
-            return UnprocessableEntity($"Insufficient data for SMA: requested {n} points, but only {points.Count} are available.");
 
         return this.Response(StatusCodes.Status200OK, new SmaResponse
         {
@@ -107,6 +104,9 @@ public class PriceAnalysisController(MarketDataDbContext dbContext)
             Period = p,
             RequestedDataPoints = n,
             ActualDataPoints = points.Count,
+            Warning = points.Count < n
+                ? $"Requested {n} data points, but only {points.Count} are available."
+                : null,
             StartTimeUtc = points.First().Timestamp,
             EndTimeUtc = points.Last().Timestamp,
             SimpleMovingAverage = points.Average(x => x.Price),
@@ -116,5 +116,6 @@ public class PriceAnalysisController(MarketDataDbContext dbContext)
                 Price = x.Price
             }).ToList()
         });
+
     }
 }

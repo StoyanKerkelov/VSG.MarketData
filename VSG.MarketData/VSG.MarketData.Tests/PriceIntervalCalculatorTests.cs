@@ -1,5 +1,4 @@
-﻿
-using VSG.MarketData.Core.Models;
+﻿using VSG.MarketData.Core.Models;
 using VSG.MarketData.Core.Services;
 
 namespace VSG.MarketData.Tests;
