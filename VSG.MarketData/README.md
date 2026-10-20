@@ -7,6 +7,7 @@ A .NET 10 application that collects cryptocurrency trade prices from Binance Spo
 - Collects live trade prices for configured Binance Spot symbols.
 - Seeds the initial symbols: `BTCUSDT`, `ADAUSDT`, and `ETHUSDT`.
 - Provides an admin API to list, add, activate, and deactivate monitored symbols.
+- Automatically refreshes the Binance WebSocket connection when the active symbol list changes.
 - Calculates the average price over the last 24 hours.
 - Calculates a simple moving average from time-bucketed price data.
 - Returns available SMA data with a warning when fewer than the requested number of data points are available.
@@ -96,6 +97,10 @@ PATCH /api/admin/symbols/{symbol}/active?active=false
 
 The `active` parameter determines whether the symbol should be active.
 
+When the active symbol list changes, the Binance WebSocket service detects the change and reconnects using the updated list. This allows symbol changes to take effect without restarting the application.
+
+This behavior was verified by activating `XRPUSDT` through the admin API and confirming that the service reconnected with `ADAUSDT`, `BTCUSDT`, `ETHUSDT`, and `XRPUSDT`.
+
 ### 24-hour average price
 
 ```http
@@ -117,6 +122,8 @@ curl -H "Accept: application/xml" \
 ```
 
 The endpoint calculates the arithmetic mean of stored trade prices for the requested symbol over the preceding 24 hours. If no matching data is available, it returns `404 Not Found`.
+
+If less than 24 hours of data is available, the average is calculated over the available data within the preceding 24-hour window.
 
 ### Simple moving average
 
@@ -142,86 +149,4 @@ Example:
 curl "http://localhost:8080/api/BTCUSDT/SimpleMovingAverage?n=5&p=1m&s=2026-10-20T11:41:00Z"
 ```
 
-The implementation groups collected trade prices into fixed-duration time buckets, calculates the arithmetic mean within each populated bucket, and then calculates the arithmetic mean of the selected bucket averages.
-
-Missing buckets are not synthesized. Consequently, the number of returned data points can be lower than the requested number.
-
-When fewer than `n` data points are available, the endpoint returns `200 OK` with the available data and a warning in the response. The response distinguishes the requested number of points from the actual number returned.
-
-Invalid parameters produce a `400 Bad Request` response. If no price data is available for the requested symbol and time window, the endpoint returns `404 Not Found`.
-
-## Console Client
-
-Run the console client locally:
-
-```bash
-dotnet run --project VSG.MarketData.Console
-```
-
-By default, it connects to:
-
-`http://localhost:8080`
-
-A different API base URL can be passed as the first argument:
-
-```bash
-dotnet run --project VSG.MarketData.Console -- http://localhost:8080
-```
-
-The client supports the 24-hour average and simple moving average operations.
-
-## Database
-
-The application uses SQLite. Entity Framework Core migrations are applied by the API during startup.
-
-The Docker Compose configuration uses the connection string:
-
-`Data Source=/app/data/marketdata.db`
-
-The database is persisted using a named Docker volume.
-
-For local development, run the API project using the configured connection string.
-
-## Tests
-
-Run the test suite from the solution root:
-
-```bash
-dotnet test VSG.MarketData.slnx --configuration Release
-```
-
-The current test suite contains eight tests covering:
-
-- Simple moving average calculation.
-- Price interval grouping.
-- SMA controller behavior when fewer data points are available than requested.
-- SMA controller behavior when the requested number of data points is available.
-- SMA controller behavior when no data exists for the requested time window.
-
-The controller tests use an isolated SQLite in-memory database. They do not require a running Binance connection or a persistent application database.
-
-## Deployment Considerations
-
-For a production deployment, consider a container hosting platform such as Azure Container Apps or Azure App Service for Containers.
-
-Recommended production changes:
-
-1. Use managed, durable storage appropriate for the expected write volume instead of a local SQLite file.
-2. Store secrets and environment-specific configuration outside the container image.
-3. Configure health checks, structured logs, monitoring, and alerting.
-4. Configure resource limits, restart policies, and deployment health validation.
-5. Consider retention policies or aggregation of raw trade data to control storage growth.
-6. Validate Binance WebSocket reconnection and symbol-change behavior under production conditions.
-7. Protect administrative endpoints before exposing the application outside a trusted development environment.
-
-The supplied Docker Compose setup is intended for local evaluation and demonstration. It is not a production deployment.
-
-## Known Limitations and Assumptions
-
-- Prices are collected from live Binance Spot trade streams. Results depend on stream availability and the duration of data collection.
-- The database stores individual trade updates, which can cause rapid database growth.
-- SMA is calculated from the average price in each populated time bucket; missing buckets are not synthesized.
-- The average of bucket averages gives each populated bucket equal weight, regardless of the number of trades within that bucket.
-- Daily and weekly periods currently use fixed-duration intervals rather than explicitly defined calendar boundaries.
-- Runtime symbol changes and their effect on active WebSocket subscriptions should be verified against the subscription lifecycle.
-- The current implementation is intended as a technical assessment and demonstration, not a fully hardened production trading system.
+The implementation groups collected trade prices into fixed-duration time buckets, calculates the arithmetic mean within

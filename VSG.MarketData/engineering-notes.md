@@ -84,6 +84,7 @@ The following checks were performed during development:
 - Verified that the partial-result response includes a warning and the actual number of available data points.
 - Ran the console client and verified the 24-hour average and SMA operations.
 - Added a symbol and toggled its active state through the admin API.
+- Verified that activating `XRPUSDT` caused the Binance WebSocket connection to reconnect with the updated active symbol list, without restarting the application.
 
 These checks validate the scenarios exercised during development. They do not replace a comprehensive integration test suite or a production-readiness assessment.
 
@@ -114,18 +115,4 @@ AI-generated suggestions were reviewed and validated through compilation, automa
 - The optional `s` parameter is treated as a UTC reference/end time.
 - The average for each bucket is the arithmetic mean of stored trade prices in that bucket.
 - The SMA is the arithmetic mean of the selected bucket averages, so buckets with fewer trades have the same weight as buckets with more trades.
-- Empty buckets are omitted rather than synthesized with interpolated or carried-forward prices.
-- The application is evaluated using live Binance data, so the amount of available data depends on collection duration and stream availability.
-
-## Known Issues and Potential Improvements
-
-- **Runtime symbol changes:** verify that adding or activating a symbol updates active WebSocket subscriptions without requiring an application restart.
-- **Time-bucket semantics:** add tests for interval boundaries and explicitly document the fixed-duration alignment used for daily and weekly periods.
-- **Missing intervals:** the current implementation omits empty buckets. A different policy would change the meaning of the SMA and should be selected deliberately.
-- **Database growth:** storing every trade can lead to high write volume and database growth. Consider aggregation and retention.
-- **Logging volume:** avoid excessive per-trade logging and prefer structured operational logs.
-- **Automated coverage:** add HTTP-level API integration tests, XML response tests, admin endpoint tests, and additional validation/boundary cases.
-- **Production hardening:** consider managed durable storage, health checks, monitoring, resource limits, and externalized configuration.
-- **Admin security:** protect administrative endpoints before exposing the application outside a trusted development environment.
-
-These are identified limitations and potential improvements, not claims that the current assessment implementation already provides the corresponding production capabilities.
+- Empty buckets are omitted
