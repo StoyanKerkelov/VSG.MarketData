@@ -15,3 +15,15 @@
 /VSG.MarketData/VSG.MarketData.Infrastructure/obj
 /VSG.MarketData/VSG.MarketData.Tests/bin/Debug/net10.0
 /VSG.MarketData/VSG.MarketData.Tests/obj
+
+# Build output
+**/bin/
+**/obj/
+
+# Local database
+**/*.db
+**/*.db-shm
+**/*.db-wal/
+
+# Local development files
+.vs/

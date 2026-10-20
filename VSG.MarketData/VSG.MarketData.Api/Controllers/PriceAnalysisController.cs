@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using VSG.MarketData.Api.Contracts;
 using VSG.MarketData.Api.Extensions;
+using VSG.MarketData.Core.Services;
 using VSG.MarketData.Infrastructure.Persistence;
 
 namespace VSG.MarketData.Api.Controllers;
@@ -85,18 +86,14 @@ public class PriceAnalysisController(MarketDataDbContext dbContext)
         if (prices.Count == 0)
             return NotFound($"No price data available for {symbol} in the requested period.");
 
-        var points = prices.GroupBy(x => new DateTime(
-                                    x.Timestamp.Ticks / period.Value.Ticks * period.Value.Ticks,
-                                    DateTimeKind.Utc))
-                           .Select(g => new
-                           {
-                               Timestamp = g.Key,
-                               Price = g.Average(x => x.Price)
-                           })
-                           .OrderByDescending(x => x.Timestamp)
-                           .Take(n)
-                           .OrderBy(x => x.Timestamp)
-                           .ToList();
+        var points = PriceIntervalCalculator.Calculate(prices.Select(x => new VSG.MarketData.Core.Models.PriceUpdate
+                                                        {
+                                                            Symbol = symbol,
+                                                            Price = x.Price,
+                                                            Timestamp = x.Timestamp
+                                                        }),
+                                                        period.Value,
+                                                        n);
 
         if (points.Count == 0)
             return NotFound("No data points available.");
